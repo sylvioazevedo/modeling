@@ -77,3 +77,18 @@ def bs_put_option(S, K, T, r, vol):
     d2 = d1 - vol*np.sqrt(T)
 
     return K*np.exp(-r*T)*norm.cdf(-d2) - S*norm.cdf(-d1)
+
+def bs_call_delta(S, K, T, r, vol):
+    '''
+    Calculate the delta of a European call option using the Black-Scholes formula.
+    
+    :param S: Spot price
+    :param K: Strike price
+    :param T: Time to maturity
+    :param r: Risk-free rate
+    :param vol: Volatility
+    :return: Call option delta
+    '''
+    d1 = (np.log(S/K) + (r + vol**2/2)*T) / (vol*np.sqrt(T))
+
+    return norm.cdf(d1)
