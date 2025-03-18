@@ -34,6 +34,7 @@ def options_chain(symbol):
     return options
 
 if __name__ == '__main__':
-    symbol = 'AAPL'
+    symbol = 'TSLA'
     options = options_chain(symbol)
+    options.to_excel('options.xlsx', index = False)
     print(options.head())

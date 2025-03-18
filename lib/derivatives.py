@@ -1,6 +1,8 @@
 from enum import Enum
 from scipy import stats
 from scipy.stats import norm
+from scipy.optimize import fsolve
+
 
 import numpy as np
 
@@ -92,3 +94,39 @@ def bs_call_delta(S, K, T, r, vol):
     d1 = (np.log(S/K) + (r + vol**2/2)*T) / (vol*np.sqrt(T))
 
     return norm.cdf(d1)
+
+def bs_strike_from_delta(S, delta, T, r, vol, type: OptionType):
+    '''
+    Calculate the strike price of a European option given the delta using the Black-Scholes formula.
+    
+    :param S: Spot price
+    :param delta: Option delta
+    :param T: Time to maturity
+    :param r: Risk-free rate
+    :param vol: Volatility
+    :param type: Option type
+    :return: Strike price
+    '''
+    if type == OptionType.CALL:
+        d1 = norm.ppf(delta)
+        return S*np.exp(vol*np.sqrt(T)*d1 - (r + vol**2/2)*T)
+    
+    elif type == OptionType.PUT:
+        d1 = norm.ppf(delta)
+        return S*np.exp(vol*np.sqrt(T)*(d1 - 1) - (r + vol**2/2)*T)
+    
+    raise ValueError('Option type not valid.')
+
+def calculate_strike(delta, S, r, sigma, T, option_type='call'):
+    def equation(K):
+        d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+        if option_type == 'call':
+            return norm.cdf(d1) - delta
+        elif option_type == 'put':
+            return norm.cdf(d1) - 1 + delta
+        else:
+            raise ValueError("option_type must be 'call' or 'put'")
+    
+    K_initial_guess = S  # Initial guess for the strike price
+    K = fsolve(equation, K_initial_guess)[0]
+    return K
