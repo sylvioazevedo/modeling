@@ -1,5 +1,6 @@
 from enum import Enum
 from scipy import stats
+from scipy.interpolate import CubicSpline
 from scipy.stats import norm
 from scipy.optimize import fsolve
 
@@ -216,3 +217,38 @@ def calculate_vol_by_delta(delta, deltas, a):
 
     return vol
     
+
+def calculate_delta_cs(K, S, r, T, sigma, option_type='call', cs: CubicSpline = None):
+    
+    max_iter = 1000
+
+    while max_iter > 0:
+
+        d1 = (np.log(S / K) + (r + sigma**2/2) * T) / (sigma * np.sqrt(T))
+
+        delta = norm.cdf(d1)
+
+        if option_type == 'call':              
+
+            _sigma = cs(delta)
+
+            if abs(_sigma - sigma) < 10**-8:
+                return delta, _sigma
+
+            sigma = _sigma
+
+        elif option_type == 'put':
+            
+            _sigma = cs(delta)
+
+            if abs(_sigma - sigma) < 10**-8:
+                return delta -1 , _sigma
+
+            sigma = _sigma
+        
+        else:
+            raise ValueError("option_type must be 'call' or 'put'")
+        
+        max_iter -= 1
+
+    raise ValueError("Max iterations reached")
