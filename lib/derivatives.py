@@ -64,6 +64,27 @@ def bs_call_option(S, K, T, r, vol):
 
     return S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
 
+def bs76_call_option(S, K, T, q, r, vol):
+    '''
+    Calculate the price of a European call option using the Black-Scholes
+    formula from the original 1976 paper.
+    '''
+    d1 = (np.log(S/K) + (r - q + vol**2/2)*T) / (vol*np.sqrt(T))
+    d2 = d1 - vol*np.sqrt(T)
+
+    return S * np.exp(-q * T) * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+
+
+def bs76_put_option(S, K, T, q, r, vol):
+    '''
+    Calculate the price of a European put option using the Black-Scholes
+    formula from the original 1976 paper.
+    '''
+    d1 = (np.log(S/K) + (r - q + vol**2/2)*T) / (vol*np.sqrt(T))
+    d2 = d1 - vol*np.sqrt(T)
+
+    return K * np.exp(-r * T) * norm.cdf(-d2) - S * np.exp(-q * T) * norm.cdf(-d1)	
+
 
 def bs_put_option(S, K, T, r, vol):
     '''

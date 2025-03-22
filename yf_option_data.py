@@ -4,6 +4,7 @@ import numpy as np
 import yfinance as yf
 
 def options_chain(symbol):
+
     tk = yf.Ticker(symbol)
     # Expiration dates
     exps = tk.options
@@ -12,9 +13,9 @@ def options_chain(symbol):
     options = pd.DataFrame()
     for e in exps:
         opt = tk.option_chain(e)
-        opt = pd.concat([opt.calls, opt.puts], ignore_index=True)
+        opt = pd.DataFrame().append(opt.calls).append(opt.puts)
         opt['expirationDate'] = e
-        options = pd.concat([options, opt], ignore_index=True)
+        options = options.append(opt, ignore_index=True)
 
     # Bizarre error in yfinance that gives the wrong expiration date
     # Add 1 day to get the correct expiration date
@@ -33,8 +34,9 @@ def options_chain(symbol):
 
     return options
 
+
 if __name__ == '__main__':
-    symbol = 'TSLA'
+    symbol = 'AAPL'
     options = options_chain(symbol)
-    options.to_excel('options.xlsx', index = False)
     print(options.head())
+    
